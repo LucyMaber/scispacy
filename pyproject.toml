@@ -52,7 +52,6 @@ dependencies = [
     "nmslib>=2.1.2",
     "scikit-learn>=0.20.3",
     "pysbd",
-    "regex",
 ]
 
 # See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#urls

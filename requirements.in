@@ -9,7 +9,6 @@ spacy-lookups-data
 pandas
 requests>=2.0.0,<3.0.0
 conllu
-regex
 
 # Candidate generation and entity linking
 joblib

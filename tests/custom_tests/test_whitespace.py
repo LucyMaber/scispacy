@@ -4,6 +4,8 @@
 
 from __future__ import unicode_literals
 
+import importlib.util
+
 import pytest
 
 import spacy
@@ -12,13 +14,13 @@ from spacy.language import Language as SpacyModelType
 from scispacy.custom_sentence_segmenter import pysbd_sentencizer
 
 
-try:
-    _shared_nlp = spacy.load("en_core_sci_sm")
-except OSError:  # pragma: no cover - depends on optional model download
+_MODEL_NAME = "en_core_sci_sm"
+if importlib.util.find_spec(_MODEL_NAME) is None:  # pragma: no cover - env specific
     pytest.skip(
-        "en_core_sci_sm is required for whitespace tests; install the model to run them.",
+        f"{_MODEL_NAME} is required for whitespace tests; install the model to run them.",
         allow_module_level=True,
     )
+_shared_nlp = spacy.load(_MODEL_NAME)
 
 
 class TestWhitespace:
