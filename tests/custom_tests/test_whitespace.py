@@ -12,8 +12,17 @@ from spacy.language import Language as SpacyModelType
 from scispacy.custom_sentence_segmenter import pysbd_sentencizer
 
 
+try:
+    _shared_nlp = spacy.load("en_core_sci_sm")
+except OSError:  # pragma: no cover - depends on optional model download
+    pytest.skip(
+        "en_core_sci_sm is required for whitespace tests; install the model to run them.",
+        allow_module_level=True,
+    )
+
+
 class TestWhitespace:
-    nlp = spacy.load("en_core_sci_sm")
+    nlp = _shared_nlp
 
     @pytest.mark.parametrize("text", ["lorem ipsum"])
     def test_tokenizer_splits_single_space(self, text):

@@ -1,12 +1,33 @@
-from typing import List
+from typing import Iterable, List
 
 from spacy.lang import char_classes
 from spacy.symbols import ORTH
 from spacy.tokenizer import Tokenizer
-from spacy.util import compile_prefix_regex, compile_infix_regex, compile_suffix_regex
 from spacy.language import Language
 
 from scispacy.consts import ABBREVIATIONS
+
+try:  # pragma: no cover - regex is installed via dependencies but keep fallback.
+    import regex as _better_re
+except ImportError:  # pragma: no cover
+    import re as _better_re
+
+def _compile_regex(entries: Iterable, *, prefix: bool = False, suffix: bool = False):
+    compiled_entries: List[str] = []
+    for piece in entries:
+        pattern = piece.pattern if hasattr(piece, "pattern") else piece  # type: ignore[attr-defined]
+        if not isinstance(pattern, str):
+            continue
+        stripped = pattern.strip()
+        if not stripped:
+            continue
+        if prefix:
+            stripped = "^" + stripped
+        if suffix:
+            stripped = stripped + "$"
+        compiled_entries.append(stripped)
+    expression = "|".join(compiled_entries)
+    return _better_re.compile(expression)
 
 
 def remove_new_lines(text: str) -> str:
@@ -114,9 +135,9 @@ def combined_rule_tokenizer(nlp: Language) -> Tokenizer:
         ]
     )
 
-    infix_re = compile_infix_regex(infixes)
-    prefix_re = compile_prefix_regex(prefixes)
-    suffix_re = compile_suffix_regex(suffixes)
+    infix_re = _compile_regex(infixes)
+    prefix_re = _compile_regex(prefixes, prefix=True)
+    suffix_re = _compile_regex(suffixes, suffix=True)
 
     # Update exclusions to include these abbreviations so the period is not split off
     exclusions = {
